@@ -1,7 +1,7 @@
-# TensorBoardFileWriter
-Port of python implementation of TensorBoardFileWriter for CNTK.
+# TensorBoardProgressWriter
+Port of python implementation of TensorBoardProgressWriter for CNTK.
 
-Contains implementation of TensorBoardFileWriter and sample C# .net core application which uses it.
+Contains implementation of TensorBoardProgressWriter and sample C# .net core application which uses it.
 
 CNTK python bindings contain implementation of TensorBoardProgressWriter, which dumps model learning
 progress into log file format, accepted by TensorBoard visualization tool.
