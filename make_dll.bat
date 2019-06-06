@@ -1,4 +1,5 @@
 rem install CNTK.GPU nuget package, expects nuget to be available from command line.
+rem can take some time, since packages are about ~500Mb
 nuget install CNTK.GPU -Version 2.7.0
 rem set path to installed nuget package
 set cntkpath=".\CNTK.GPU.2.7.0\build\native"

@@ -3,3 +3,5 @@ CNTK*
 *.exp
 *.lib
 *.obj
+bin
+obj
