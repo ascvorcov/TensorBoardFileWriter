@@ -1,0 +1,5 @@
+CNTK*
+*.dll
+*.exp
+*.lib
+*.obj
