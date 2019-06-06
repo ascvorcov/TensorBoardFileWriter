@@ -1,4 +1,4 @@
-pushd .\bin\Release\netcoreapp2.2\win-x64\publish\
+pushd .\bin\X64\Release\netcoreapp2.2\win-x64\publish\
 md log
 sample.exe
 start tensorboard --logdir=.\log --host:127.0.0.1
