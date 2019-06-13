@@ -16,10 +16,26 @@ namespace Sample
     {
         // import InitVec from unmanaged dll
         [DllImport("TensorBoardFileWriter.dll")]
-        public static extern void InitVec([MarshalAs(UnmanagedType.LPWStr)] string dir, IntPtr func, IntPtr vector);
+        public static extern void InitVec(IntPtr vector, [MarshalAs(UnmanagedType.LPWStr)] string dir, IntPtr func);
+        
+        [DllImport("TensorBoardFileWriter.dll")]
+        public static extern IntPtr OpenWriter([MarshalAs(UnmanagedType.LPWStr)] string dir);
+        
+        [DllImport("TensorBoardFileWriter.dll")]
+        public static extern void CloseWriter(IntPtr writer);
+        
+        [DllImport("TensorBoardFileWriter.dll")]
+        public static extern void WriteValue(IntPtr writer, [MarshalAs(UnmanagedType.LPWStr)] string name, float value, long step);
+        
+        private readonly IntPtr writer;
+        public TensorBoardFileWriter(string dir) => this.writer = OpenWriter(dir);
+        
+        ~TensorBoardFileWriter() => CloseWriter(this.writer);
+        
+        public void WriteValue(string name, float value, long step) => WriteValue (this.writer, name, value, step);
         
         // create ProgressWriterVector with attached native progress writer
-        public static ProgressWriterVector CreateVector(Function network)
+        public static ProgressWriterVector CreateVector(string path, Function network)
         {
             var progress = new ProgressWriterVector();
             var getV = typeof(ProgressWriterVector).GetMethods(BindingFlags.Static|BindingFlags.NonPublic).First(m => m.Name == "getCPtr");
@@ -28,7 +44,7 @@ namespace Sample
             var getF = typeof(Function).GetMethods(BindingFlags.Static|BindingFlags.NonPublic).First(m => m.Name == "getCPtr");
             HandleRef function = (HandleRef)(getF.Invoke(null, new object[] { network }));
             
-            TensorBoardFileWriter.InitVec("log", function.Handle, vector.Handle);
+            TensorBoardFileWriter.InitVec(vector.Handle, path, function.Handle);
             return progress;
         }
     }
@@ -62,7 +78,9 @@ namespace Sample
             CNTK.TrainingParameterScheduleDouble learningRatePerSample = new CNTK.TrainingParameterScheduleDouble(0.02, 1);
             IList<Learner> parameterLearners =
                 new List<Learner>() { Learner.SGDLearner(classifierOutput.Parameters(), learningRatePerSample) };
-            var progressWriterVector = TensorBoardFileWriter.CreateVector(classifierOutput);
+
+            var progressWriter = new TensorBoardFileWriter("log/test");
+            var progressWriterVector = TensorBoardFileWriter.CreateVector("log/main", classifierOutput);
             var trainer = Trainer.CreateTrainer(classifierOutput, loss, evalError, parameterLearners, progressWriterVector);
 
             int minibatchSize = 64;
@@ -70,6 +88,7 @@ namespace Sample
             int updatePerMinibatches = 50;
 
             // train the model
+            Random random = new Random(0);
             for (int minibatchCount = 0; minibatchCount < numMinibatchesToTrain; minibatchCount++)
             {
                 Value features, labels;
@@ -80,6 +99,9 @@ namespace Sample
                     new Dictionary<Variable, Value>() { { featureVariable, features }, { labelVariable, labels } }, device);
 #pragma warning restore 618
                 PrintTrainingProgress(trainer, minibatchCount, updatePerMinibatches);
+
+                progressWriter.WriteValue("random1", (float)random.Next(), minibatchCount);
+                progressWriter.WriteValue("random2", (float)random.Next(), minibatchCount);
             }
 
             // test and validate the model
