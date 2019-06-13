@@ -26,13 +26,18 @@ namespace Sample
         
         [DllImport("TensorBoardFileWriter.dll")]
         public static extern void WriteValue(IntPtr writer, [MarshalAs(UnmanagedType.LPWStr)] string name, float value, long step);
+
+        [DllImport("TensorBoardFileWriter.dll")]
+        public static extern void Flush(IntPtr writer);
         
         private readonly IntPtr writer;
         public TensorBoardFileWriter(string dir) => this.writer = OpenWriter(dir);
         
         ~TensorBoardFileWriter() => CloseWriter(this.writer);
         
-        public void WriteValue(string name, float value, long step) => WriteValue (this.writer, name, value, step);
+        public void WriteValue(string name, float value, long step) => WriteValue(this.writer, name, value, step);
+
+        public void Flush() => Flush(this.writer);
         
         // create ProgressWriterVector with attached native progress writer
         public static ProgressWriterVector CreateVector(string path, Function network)
@@ -102,6 +107,7 @@ namespace Sample
 
                 progressWriter.WriteValue("random1", (float)random.Next(), minibatchCount);
                 progressWriter.WriteValue("random2", (float)random.Next(), minibatchCount);
+                progressWriter.Flush();
             }
 
             // test and validate the model

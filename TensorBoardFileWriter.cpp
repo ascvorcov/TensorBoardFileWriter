@@ -113,4 +113,10 @@ extern "C"
     auto ptr = (CNTK::Internal::TensorBoardFileWriter*)fileWriter;
     ptr->WriteValue(name, value, step);
   }
+
+  API void Flush(void* fileWriter)
+  {
+    auto ptr = (CNTK::Internal::TensorBoardFileWriter*)fileWriter;
+    ptr->Flush();
+  }
 }
